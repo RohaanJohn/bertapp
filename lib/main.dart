@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:huggingface_dart/huggingface_dart.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'dart:core';
 
 void main() {
   runApp(MyApp());
@@ -32,11 +34,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> completedSentences = [];
   TextEditingController inputController = TextEditingController();
+  final hf = HfInference('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');
+  FlutterTts flutterTts = FlutterTts();
 
-  Future<void> _fillMask() async {
-    final hf = HfInference('Put your hugging face token here');
-    // Get the input text from the TextField
-    String inputText = inputController.text;
+  @override
+  void initState() {
+    super.initState();
+    inputController.addListener(_onTextChanged);
+  }
+
+  @override
+  void dispose() {
+    inputController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fillMask(String inputText) async {
     final List completions = await hf.fillMask(
       model: 'bert-base-uncased',
       inputs: ['$inputText [MASK] .'],
@@ -48,9 +61,23 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       setState(() {
         completedSentences = completions
-            .map((completion) => completion['sequence'].toString())
+            .map((completion) => capitalize(completion['sequence'].toString()))
             .toList();
       });
+    }
+  }
+
+  Future<void> _speak(String text) async {
+    await flutterTts.speak(text);
+  }
+
+  String capitalize(String s) =>
+      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+
+  void _onTextChanged() {
+    String inputText = inputController.text;
+    if (inputText.isNotEmpty) {
+      _fillMask(inputText);
     }
   }
 
@@ -73,23 +100,23 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _fillMask,
-              child: Text('Predict'),
-            ),
-            SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: completedSentences.length,
                 itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 2,
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text(
-                        completedSentences[index],
-                        style: TextStyle(fontSize: 16),
+                  return InkWell(
+                    onTap: () {
+                      _speak(completedSentences[index]);
+                    },
+                    child: Card(
+                      elevation: 2,
+                      margin: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          completedSentences[index],
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
                   );
