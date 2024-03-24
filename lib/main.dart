@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> completedSentences = [];
   TextEditingController inputController = TextEditingController();
-  final hf = HfInference('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');
+  final hf = HfInference('your token here');
   FlutterTts flutterTts = FlutterTts();
 
   @override
