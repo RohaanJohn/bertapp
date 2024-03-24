@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<String> completedSentences = [];
   TextEditingController inputController = TextEditingController();
-  final hf = HfInference('your token here');
+  final hf = HfInference('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');
   FlutterTts flutterTts = FlutterTts();
 
   @override
@@ -71,8 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
     await flutterTts.speak(text);
   }
 
-  String capitalize(String s) =>
-      s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  String capitalize(String s) {
+    if (s.isEmpty) return s;
+
+    // Capitalize 'i' if it appears in the sentence
+    s = s.replaceAllMapped(RegExp(r'\bi\b'), (match) => 'I');
+
+    // Capitalize the first letter of the sentence
+    return s[0].toUpperCase() + s.substring(1);
+  }
 
   void _onTextChanged() {
     String inputText = inputController.text;
