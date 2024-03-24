@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Masked Language Model',
+      title: 'Next Word Prediction using Bert-Base-Uncased',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
